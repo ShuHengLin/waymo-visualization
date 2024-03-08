@@ -15,7 +15,7 @@ tar -xf google-cloud-cli-466.0.0-linux-x86_64.tar.gz
 ./google-cloud-sdk/install.sh
 ```
 
-* Training: 
+* Download training set: 
 ```
 ./google-cloud-sdk/bin/gsutil -m cp -r \
 "gs://waymo_open_dataset_v_2_0_0/training/lidar" \
@@ -24,7 +24,7 @@ tar -xf google-cloud-cli-466.0.0-linux-x86_64.tar.gz
 /data_1TB_1/waymo/dataset/training/
 ```
 
-* Validation: 
+* Download validation set: 
 ```
 ./google-cloud-sdk/bin/gsutil -m cp -r \
 "gs://waymo_open_dataset_v_2_0_0/validation/lidar" \
@@ -32,7 +32,6 @@ tar -xf google-cloud-cli-466.0.0-linux-x86_64.tar.gz
 "gs://waymo_open_dataset_v_2_0_0/validation/lidar_calibration" \
 /data_1TB_1/waymo/dataset/validation/
 ```
-[Download Waymo Open Dataset](https://waymo.com/open/download/)
 
 
 ## Docker
@@ -82,3 +81,4 @@ python -B vis_lidar.py
 ## References
 1) [[2020 CVPR] Scalability in Perception for Autonomous Driving: Waymo Open Dataset](https://openaccess.thecvf.com/content_CVPR_2020/html/Sun_Scalability_in_Perception_for_Autonomous_Driving_Waymo_Open_Dataset_CVPR_2020_paper.html)
 2) [Waymo Open Dataset Labeling Specifications](https://github.com/waymo-research/waymo-open-dataset/blob/master/docs/labeling_specifications.md)
+3) [Download Waymo Open Dataset](https://waymo.com/open/download/)
