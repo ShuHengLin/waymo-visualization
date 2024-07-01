@@ -62,7 +62,7 @@ python3 -m pip install gcsfs waymo-open-dataset-tf-2-11-0==1.6.1
 
 ## Visualize lidar pointcloud
 ```
-python -B lidar_data_to_npy.py
+cd /data/waymo/ && python -B lidar_data_to_npy.py
 ```
 ```
 roscore
