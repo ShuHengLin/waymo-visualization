@@ -69,8 +69,7 @@ for i, (_, row) in enumerate(df.iterrows()):
     os.makedirs(output_box_path)
 
   # Convert range_image to point_cloud
-  points_tensor = lidar_utils.convert_range_image_to_point_cloud(lidar.range_image_return1, lidar_calib)
-  points = points_tensor.numpy()
+  points_tensor = lidar_utils.convert_range_image_to_point_cloud(lidar.range_image_return1, lidar_calib, keep_polar_features=True)
 
   # Compute box 8 corners
   num_box = len(lidar_box.key.laser_object_id)
@@ -85,6 +84,6 @@ for i, (_, row) in enumerate(df.iterrows()):
   box_type = np.array(lidar_box.type).reshape((num_box, 1))
 
   # Save
-  pickle_save(output_lidar_path + str(lidar.key.frame_timestamp_micros) + '.pkl', points)
+  pickle_save(output_lidar_path + str(lidar.key.frame_timestamp_micros) + '.pkl', points_tensor.numpy())
   pickle_save(output_box_path   + str(lidar.key.frame_timestamp_micros) + '.pkl', np.concatenate((box_type, corners), axis=1))
   progress.update(1)

@@ -7,7 +7,7 @@ from lib.utils_pointcloud import *
 
 import std_msgs.msg
 import sensor_msgs.point_cloud2 as pcl2
-from sensor_msgs.msg import PointCloud2
+from sensor_msgs.msg import PointCloud2, PointField
 
 from visualization_msgs.msg import Marker
 from visualization_msgs.msg import MarkerArray
@@ -39,6 +39,11 @@ def load_data(load_path):
 header = std_msgs.msg.Header()
 header.frame_id = 'map'
 
+fields = [PointField(name='x', offset=0, datatype=PointField.FLOAT32, count=1),
+          PointField(name='y', offset=4, datatype=PointField.FLOAT32, count=1),
+          PointField(name='z', offset=8, datatype=PointField.FLOAT32, count=1),
+          PointField(name='intensity', offset=12, datatype=PointField.FLOAT32, count=1)]
+
 pointcloud_pub = rospy.Publisher('/pointcloud',   PointCloud2, queue_size=10)
 marker_pub     = rospy.Publisher('/detect_box3d', MarkerArray, queue_size=10)
 rospy.init_node('talker', anonymous=True)
@@ -54,11 +59,13 @@ for data_name in tqdm(data_names):
   # loading pointcloud
   all_scan = []
   for i in range(5):
-    scan = load_data(data_path + str(i + 1) + '/' + data_name)
-    all_scan.append(scan)
+    input_points = load_data(data_path + str(i + 1) + '/' + data_name)
+    scan = input_points[:, 3:]
+    intensity = input_points[:, 2].reshape(-1, 1)
+    all_scan.append(np.concatenate((scan, intensity), axis=1))
 
   all_points = np.concatenate(all_scan, axis=0)
-  pointcloud_msg = pcl2.create_cloud_xyz32(header, all_points[:, 0:3])
+  pointcloud_msg = pcl2.create_cloud(header, fields, all_points)
   pointcloud_pub.publish(pointcloud_msg)
 
 
