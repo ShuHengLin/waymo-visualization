@@ -21,8 +21,8 @@ from waymo_open_dataset.utils import box_utils
 dataset_dir = '/data/waymo/dataset/training'
 output_dir  = '/data/waymo/processed_data/'
 
-#context_name = '15832924468527961_1564_160_1584_160'
-context_name = '16102220208346880_1420_000_1440_000'
+context_name = '15832924468527961_1564_160_1584_160'
+#context_name = '16102220208346880_1420_000_1440_000'
 #context_name = '11004685739714500220_2300_000_2320_000' 
 #context_name = '10023947602400723454_1120_000_1140_000'
 
@@ -35,6 +35,12 @@ def read(tag: str) -> dd.DataFrame:
   """Creates a Dask DataFrame for the component specified by its tag."""
   paths = tf.io.gfile.glob(f'{dataset_dir}/{tag}/{context_name}.parquet')
   return dd.read_parquet(paths)
+
+
+import pickle
+def pickle_save(save_path, save_data):
+  with open(save_path, "wb") as f:
+    pickle.dump(save_data, f)
 
 # ==================================================================================================================
 
@@ -79,6 +85,6 @@ for i, (_, row) in enumerate(df.iterrows()):
   box_type = np.array(lidar_box.type).reshape((num_box, 1))
 
   # Save
-  np.save(output_lidar_path + str(lidar.key.frame_timestamp_micros) + '.npy', points)
-  np.save(output_box_path   + str(lidar.key.frame_timestamp_micros) + '.npy', np.concatenate((box_type, corners), axis=1))
+  pickle_save(output_lidar_path + str(lidar.key.frame_timestamp_micros) + '.pkl', points)
+  pickle_save(output_box_path   + str(lidar.key.frame_timestamp_micros) + '.pkl', np.concatenate((box_type, corners), axis=1))
   progress.update(1)

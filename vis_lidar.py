@@ -24,6 +24,16 @@ data_path = '/data_1TB_1/waymo/processed_data/'
 
 data_names = sorted(os.listdir(data_path + str(1)))
 
+import pickle
+def load_data(load_path):
+
+  if load_path.endswith('.pkl'):
+    with open(load_path, "rb") as f:
+      return pickle.load(f)
+
+  elif load_path.endswith('.npy'):
+      return np.load(load_path)
+
 # ==================================================================================================================
 
 header = std_msgs.msg.Header()
@@ -44,7 +54,7 @@ for data_name in tqdm(data_names):
   # loading pointcloud
   all_scan = []
   for i in range(5):
-    scan = np.load(data_path + str(i + 1) + '/' + data_name)
+    scan = load_data(data_path + str(i + 1) + '/' + data_name)
     all_scan.append(scan)
 
   all_points = np.concatenate(all_scan, axis=0)
@@ -54,7 +64,8 @@ for data_name in tqdm(data_names):
 
   # loading label
   marker_array = new_marker_array()
-  boxes = np.load(data_path + 'box/' + data_name)
+  boxes = load_data(data_path + 'box/' + data_name)
+
   for i, box in enumerate(boxes):
     marker = box_to_marker(box[1:].reshape(8, 3), cls=box[0], index=i)
     marker_array.markers.append(marker)
