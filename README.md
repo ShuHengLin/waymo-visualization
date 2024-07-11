@@ -21,6 +21,8 @@ tar -xf google-cloud-cli-466.0.0-linux-x86_64.tar.gz
 "gs://waymo_open_dataset_v_2_0_0/training/lidar" \
 "gs://waymo_open_dataset_v_2_0_0/training/lidar_box" \
 "gs://waymo_open_dataset_v_2_0_0/training/lidar_calibration" \
+"gs://waymo_open_dataset_v_2_0_0/training/lidar_pose" \
+"gs://waymo_open_dataset_v_2_0_0/training/vehicle_pose" \
 /data_1TB_1/waymo/dataset/training/  # Your data path for training splits
 ```
 
@@ -30,6 +32,8 @@ tar -xf google-cloud-cli-466.0.0-linux-x86_64.tar.gz
 "gs://waymo_open_dataset_v_2_0_0/validation/lidar" \
 "gs://waymo_open_dataset_v_2_0_0/validation/lidar_box" \
 "gs://waymo_open_dataset_v_2_0_0/validation/lidar_calibration" \
+"gs://waymo_open_dataset_v_2_0_0/validation/lidar_pose" \
+"gs://waymo_open_dataset_v_2_0_0/validation/vehicle_pose" \
 /data_1TB_1/waymo/dataset/validation/  # Your data path for validation splits
 ```
 
