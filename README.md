@@ -81,4 +81,5 @@ python -B vis_lidar.py
 ## References
 1) [[2020 CVPR] Scalability in Perception for Autonomous Driving: Waymo Open Dataset](https://openaccess.thecvf.com/content_CVPR_2020/html/Sun_Scalability_in_Perception_for_Autonomous_Driving_Waymo_Open_Dataset_CVPR_2020_paper.html)
 2) [Waymo Open Dataset Labeling Specifications](https://github.com/waymo-research/waymo-open-dataset/blob/master/docs/labeling_specifications.md)
-3) [Download Waymo Open Dataset](https://waymo.com/open/download/)
+3) [Waymo Open Dataset Tutorial_v2](https://github.com/waymo-research/waymo-open-dataset/blob/master/tutorial/tutorial_v2.ipynb)
+4) [Download Waymo Open Dataset](https://waymo.com/open/download/)
