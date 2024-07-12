@@ -12,19 +12,17 @@ import tensorflow as tf
 
 from waymo_open_dataset import v2
 from waymo_open_dataset.v2.perception.utils import lidar_utils
-from waymo_open_dataset.utils import box_utils
 
 ##############################
 # Options
 ##############################
 
 dataset_dir = '/data/waymo/dataset/training'
-output_dir  = '/data/waymo/processed_data/'
+output_dir  = '/data/waymo/processed_data/train/'
 
-context_name = '15832924468527961_1564_160_1584_160'
+#context_name = '15832924468527961_1564_160_1584_160'
 #context_name = '16102220208346880_1420_000_1440_000'
-#context_name = '11004685739714500220_2300_000_2320_000' 
-#context_name = '10023947602400723454_1120_000_1140_000'
+context_name = '1005081002024129653_5313_150_5333_150'
 
 ##############################
 # End of Options
@@ -37,6 +35,11 @@ def read(tag: str) -> dd.DataFrame:
   return dd.read_parquet(paths)
 
 
+def create_dir(dir_path):
+  if not os.path.exists(dir_path):
+    os.makedirs(dir_path)
+
+
 import pickle
 def pickle_save(save_path, save_data):
   with open(save_path, "wb") as f:
@@ -44,46 +47,77 @@ def pickle_save(save_path, save_data):
 
 # ==================================================================================================================
 
-lidar_df       = read('lidar')
-lidar_box_df   = read('lidar_box')
-lidar_calib_df = read('lidar_calibration')
+lidar_df        = read('lidar')
+lidar_pose_df   = read('lidar_pose')
+lidar_box_df    = read('lidar_box')
+lidar_calib_df  = read('lidar_calibration')
+vehicle_pose_df = read('vehicle_pose')
 
-df = v2.merge(v2.merge(lidar_df, lidar_box_df, right_group=True), lidar_calib_df, right_group=True)
-progress = tqdm(total=df.shape[0].compute(), desc="Processed_lidar_data")
-for i, (_, row) in enumerate(df.iterrows()):
+pose_df = v2.merge(lidar_pose_df, vehicle_pose_df)
+df = v2.merge(v2.merge(v2.merge(pose_df, lidar_df), lidar_calib_df), lidar_box_df, right_group=True)
+num_frames = int(df.shape[0].compute())
+progress = tqdm(total=num_frames, desc="Processed_lidar_data")
+
+for idx, (_, row) in enumerate(df.iterrows()):
 
   # Loading Component
-  lidar       = v2.LiDARComponent.from_dict(row)
-  lidar_calib = v2.LiDARCalibrationComponent.from_dict(row)
-  lidar_box   = v2.LiDARBoxComponent.from_dict(row)
-  assert lidar.key.laser_name == lidar_calib.key.laser_name
-  assert lidar.key.frame_timestamp_micros == lidar_box.key.frame_timestamp_micros
+  lidar        = v2.LiDARComponent.from_dict(row)
+  lidar_pose   = v2.LiDARPoseComponent.from_dict(row)
+  lidar_box    = v2.LiDARBoxComponent.from_dict(row)
+  lidar_calib  = v2.LiDARCalibrationComponent.from_dict(row)
+  vehicle_pose = v2.VehiclePoseComponent.from_dict(row)
 
-  # Create output dir
-  output_lidar_path = output_dir + str(lidar_calib.key.laser_name) + '/'
-  if not os.path.exists(output_lidar_path):
-    os.makedirs(output_lidar_path)
-
-  output_box_path = output_dir + 'box/'
-  if not os.path.exists(output_box_path):
-    os.makedirs(output_box_path)
 
   # Convert range_image to point_cloud
-  points_tensor = lidar_utils.convert_range_image_to_point_cloud(lidar.range_image_return1, lidar_calib, keep_polar_features=True)
+  points_tensor1 = lidar_utils.convert_range_image_to_point_cloud(lidar.range_image_return1, lidar_calib,
+                                                                  lidar_pose.range_image_return1, vehicle_pose, keep_polar_features=True)
+  points_tensor2 = lidar_utils.convert_range_image_to_point_cloud(lidar.range_image_return2, lidar_calib,
+                                                                  lidar_pose.range_image_return1, vehicle_pose, keep_polar_features=True)
+  points_tensor = tf.concat([points_tensor1, points_tensor2], axis=0)
 
-  # Compute box 8 corners
-  num_box = len(lidar_box.key.laser_object_id)
-  corners = box_utils.get_upright_3d_box_corners(tf.stack([lidar_box.box.center.x,
-                                                           lidar_box.box.center.y,
-                                                           lidar_box.box.center.z,
-                                                           lidar_box.box.size.x,
-                                                           lidar_box.box.size.y,
-                                                           lidar_box.box.size.z,
-                                                           lidar_box.box.heading], axis=-1)).numpy()
-  corners = corners.reshape((num_box, -1))
-  box_type = np.array(lidar_box.type).reshape((num_box, 1))
 
-  # Save
-  pickle_save(output_lidar_path + str(lidar.key.frame_timestamp_micros) + '.pkl', points_tensor.numpy())
-  pickle_save(output_box_path   + str(lidar.key.frame_timestamp_micros) + '.pkl', np.concatenate((box_type, corners), axis=1))
+  # Create output dir
+  output_lidar_path = output_dir + 'lidar/'
+  output_anno_path  = output_dir + 'annos/'
+  create_dir(output_lidar_path)
+  create_dir(output_anno_path)
+
+
+  # Save lidar
+  lidars = {'points_xyz'    : points_tensor[:, 3:].numpy(),
+            'points_feature': points_tensor[:, 1:3].numpy()
+           }
+  lidar_data = {'scene_name': lidar.key.segment_context_name,
+                'frame_name': '{scene_name}_{timestamp}'.format(scene_name=lidar.key.segment_context_name,
+                                                                timestamp=lidar.key.frame_timestamp_micros),
+                'frame_id'  : idx,
+                'lidars'    : lidars
+               }
+  pickle_save(output_lidar_path + 'seq_0_frame_' + str(idx) + '.pkl', lidar_data)
+
+
+  # Save annos
+  objects = []
+  for i in range(len(lidar_box.key.laser_object_id)):
+    objects.append({'id'                        : i,
+                    'name'                      : lidar_box.key.laser_object_id[i],
+                    'label'                     : lidar_box.type[i],
+                    'box'                       : np.array([lidar_box.box.center.x[i], lidar_box.box.center.y[i], lidar_box.box.center.z[i],
+                                                            lidar_box.box.size.x[i], lidar_box.box.size.y[i], lidar_box.box.size.z[i], 0, 0,
+                                                            lidar_box.box.heading[i]], dtype=np.float32),
+                    'num_points'                : lidar_box.num_lidar_points_in_box[i],
+                    'detection_difficulty_level': lidar_box.difficulty_level.detection[i],
+                    'combined_difficulty_level' : 0,
+                    'global_speed'              : [lidar_box.speed.x[i], lidar_box.speed.y[i]],
+                    'global_accel'              : [lidar_box.acceleration.x[i], lidar_box.acceleration.y[i]]
+                    })
+
+  annos = {'scene_name'   : lidar.key.segment_context_name,
+           'frame_name'   : '{scene_name}_{timestamp}'.format(scene_name=lidar.key.segment_context_name,
+                                                              timestamp=lidar.key.frame_timestamp_micros),
+           'frame_id'     : idx,
+           'veh_to_global': vehicle_pose.world_from_vehicle.transform,  
+           'objects'      : objects
+          }
+  pickle_save(output_anno_path + 'seq_0_frame_' + str(idx) + '.pkl', annos)
   progress.update(1)

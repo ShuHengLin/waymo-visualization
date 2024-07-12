@@ -9,6 +9,29 @@ from pyboreas.utils.utils import get_inverse_tf
 
 # ==================================================================================================================
 
+# get_upright_3d_box_corners & get_yaw_rotation
+# https://github.com/waymo-research/waymo-open-dataset/blob/master/src/waymo_open_dataset/utils/box_utils.py
+# https://github.com/waymo-research/waymo-open-dataset/blob/master/src/waymo_open_dataset/utils/transform_utils.py
+
+def compute_box_corners(box):
+  """
+  box: [x, y, z, l, w, h, ref_velocity[0], ref_velocity[1], heading]
+  """
+  yaw = box[8]
+  c, s = np.cos(yaw), np.sin(yaw)
+  R = np.array([[c, -s, 0], [s, c, 0], [0, 0, 1]], dtype=np.float32)
+
+  translation = np.stack([box[0], box[1], box[2]], axis=-1)
+
+  l, w, h = box[3], box[4], box[5]
+  l2, w2, h2 = l * 0.5, w * 0.5, h * 0.5
+  corners = np.stack([ l2, w2, -h2, -l2, w2, -h2, -l2, -w2, -h2, l2, -w2, -h2, l2, w2, h2,
+                      -l2, w2, h2, -l2, -w2, h2, l2, -w2, h2], axis=-1).reshape((8, 3))
+  corners = np.dot(corners, R.T) + translation
+  return corners
+
+# ==================================================================================================================
+
 # clearing all markers / view in RVIZ remotely
 #https://answers.ros.org/question/53595/clearing-all-markers-view-in-rviz-remotely/
 
