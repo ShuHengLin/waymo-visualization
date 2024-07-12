@@ -47,20 +47,20 @@ docker run -itd \
 -e DISPLAY=$DISPLAY \
 -e QT_X11_NO_MITSHM=1 \
 -v "/tmp/.X11-unix:/tmp/.X11-unix" \
--v /data_1TB_1/:/data/ \
+-v /data/:/data/ \
 --gpus all \
 --shm-size=64g \
 --privileged \
 --ipc=host \
 --network=host \
-nvcr.io/nvidia/pytorch:23.07-py3 \
+pytorch/pytorch:2.1.0-cuda11.8-cudnn8-devel \
 bash && docker exec -it docker_Waymo bash
 ```
 ```
-apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install protobuf-compiler ffmpeg python3-tk libsm6 libxext6 libxrender1 -y
+apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install ffmpeg python3-tk libsm6 libxext6 libxrender1 -y
 ```
 ```
-python3 -m pip install gcsfs waymo-open-dataset-tf-2-11-0==1.6.1
+pip install --upgrade pip && pip install waymo-open-dataset-tf-2-12-0
 ```
 
 
