@@ -66,7 +66,7 @@ pip install --upgrade pip && pip install waymo-open-dataset-tf-2-12-0
 
 ## Visualize lidar pointcloud
 ```
-cd /data/waymo/ && python -B lidar_data_to_npy.py
+cd /data/waymo/ && python -B lidar_data_to_pkl.py
 ```
 ```
 roscore
