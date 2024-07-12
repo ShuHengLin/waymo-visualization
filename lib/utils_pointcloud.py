@@ -5,8 +5,6 @@ from geometry_msgs.msg import Point
 from visualization_msgs.msg import Marker
 from visualization_msgs.msg import MarkerArray
 
-from pyboreas.utils.utils import get_inverse_tf
-
 # ==================================================================================================================
 
 # get_upright_3d_box_corners & get_yaw_rotation
