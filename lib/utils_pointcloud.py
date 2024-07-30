@@ -1,9 +1,5 @@
-import rospy
 import numpy as np
-
-from geometry_msgs.msg import Point
-from visualization_msgs.msg import Marker
-from visualization_msgs.msg import MarkerArray
+from lib.Point_utils import Pointcloud
 
 # ==================================================================================================================
 
@@ -15,7 +11,7 @@ def compute_box_corners(box):
   """
   box: [x, y, z, l, w, h, ref_velocity[0], ref_velocity[1], heading]
   """
-  yaw = box[8]
+  yaw = box[-1]
   c, s = np.cos(yaw), np.sin(yaw)
   R = np.array([[c, -s, 0], [s, c, 0], [0, 0, 1]], dtype=np.float32)
 
@@ -34,6 +30,10 @@ def compute_box_corners(box):
 #https://answers.ros.org/question/53595/clearing-all-markers-view-in-rviz-remotely/
 
 def new_marker_array():
+
+  from visualization_msgs.msg import Marker
+  from visualization_msgs.msg import MarkerArray
+
   marker_array_msg = MarkerArray()
   marker = Marker()
   marker.id = 0
@@ -45,22 +45,22 @@ def new_marker_array():
 
 def color_select(cls, marker):
 
-    if cls == 1:          # Vehicles
+    if cls == 1 or cls == 'VEHICLE':
       marker.color.r = 0  # Green
       marker.color.g = 1
       marker.color.b = 0
 
-    elif cls == 2:        # Pedestrians
+    elif cls == 2 or cls == 'PEDESTRIAN':
       marker.color.r = 1  # Red
       marker.color.g = 0
       marker.color.b = 0
 
-    elif cls == 3:        # Signs
+    elif cls == 3 or cls == 'SIGN':
       marker.color.r = 0  # Cyan
       marker.color.g = 1
       marker.color.b = 1
 
-    elif cls == 4:        # Cyclists
+    elif cls == 4 or cls == 'CYCLIST':
       marker.color.r = 1  # Yellow
       marker.color.g = 1
       marker.color.b = 0
@@ -79,6 +79,10 @@ lines = [[0, 1], [1, 2], [2, 3], [3, 0], [4, 5], [5, 6],
          [3, 4], [0, 7]]
 
 def box_to_marker(ob, cls, index):
+
+  import rospy
+  from geometry_msgs.msg import Point
+  from visualization_msgs.msg import Marker
 
   detect_points_set = []
   for x in range(8):

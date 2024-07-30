@@ -16,7 +16,8 @@ from visualization_msgs.msg import MarkerArray
 # Options
 ##############################
 
-data_path = '/data_1TB_1/waymo/processed_data/train/'
+data_path = '/data/waymo/processed_data/train/'
+#data_path = '/data/waymo/processed_data/val/'
 
 ##############################
 # End of Options
