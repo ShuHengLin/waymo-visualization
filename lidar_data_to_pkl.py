@@ -116,7 +116,7 @@ def convert(idx):
           else:
             combined_difficulty_level = 2
         else:
-          combined_difficulty_level = lidar_box.num_lidar_points_in_box[i]
+          combined_difficulty_level = lidar_box.difficulty_level.detection[i]
 
         objects.append({'id'                        : i,
                         'name'                      : lidar_box.key.laser_object_id[i],
@@ -148,7 +148,7 @@ def main():
   global fnames, progress, output_lidar_path, output_anno_path
 
   fnames = sorted(os.listdir(dataset_dir + 'lidar/')) #[0:1]
-  print("Number of files: {}".format(len(fnames)))
+  print("Number of files: {}".format(len(fnames) - 1))
 
   # Create output dir
   create_dir(output_lidar_path)
