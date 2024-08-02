@@ -103,6 +103,21 @@ def convert(idx):
       # Save annos
       objects = []
       for i in range(len(lidar_box.key.laser_object_id)):
+
+        # Difficulty level is 0 if labeler did not say this was LEVEL_2.
+        # Set difficulty level of "999" for boxes with no points in box.
+        if lidar_box.num_lidar_points_in_box[i] <= 0:
+          combined_difficulty_level = 999
+
+        if lidar_box.difficulty_level.detection[i] == 0:
+          # Use points in box to compute difficulty level.
+          if lidar_box.num_lidar_points_in_box[i] >= 5:
+            combined_difficulty_level = 1
+          else:
+            combined_difficulty_level = 2
+        else:
+          combined_difficulty_level = lidar_box.num_lidar_points_in_box[i]
+
         objects.append({'id'                        : i,
                         'name'                      : lidar_box.key.laser_object_id[i],
                         'label'                     : lidar_box.type[i],
@@ -111,7 +126,7 @@ def convert(idx):
                                                                 lidar_box.box.heading[i]], dtype=np.float32),
                         'num_points'                : lidar_box.num_lidar_points_in_box[i],
                         'detection_difficulty_level': lidar_box.difficulty_level.detection[i],
-                        'combined_difficulty_level' : 0,
+                        'combined_difficulty_level' : combined_difficulty_level,
                         'global_speed'              : [lidar_box.speed.x[i], lidar_box.speed.y[i]],
                         'global_accel'              : [lidar_box.acceleration.x[i], lidar_box.acceleration.y[i]]
                         })
@@ -132,7 +147,7 @@ def convert(idx):
 def main():
   global fnames, progress, output_lidar_path, output_anno_path
 
-  fnames = sorted(os.listdir(dataset_dir + 'lidar/'))
+  fnames = sorted(os.listdir(dataset_dir + 'lidar/')) #[0:1]
   print("Number of files: {}".format(len(fnames)))
 
   # Create output dir
