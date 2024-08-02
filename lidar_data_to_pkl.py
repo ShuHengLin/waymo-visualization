@@ -109,12 +109,14 @@ def convert(idx):
         if lidar_box.num_lidar_points_in_box[i] <= 0:
           combined_difficulty_level = 999
 
-        if lidar_box.difficulty_level.detection[i] == 0:
+        if lidar_box.difficulty_level.detection[i] == 0 or np.isnan(lidar_box.difficulty_level.detection[i]):
+
           # Use points in box to compute difficulty level.
           if lidar_box.num_lidar_points_in_box[i] >= 5:
             combined_difficulty_level = 1
           else:
             combined_difficulty_level = 2
+
         else:
           combined_difficulty_level = lidar_box.difficulty_level.detection[i]
 
