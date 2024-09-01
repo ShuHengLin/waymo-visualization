@@ -68,6 +68,8 @@ pip install --upgrade pip && pip install waymo-open-dataset-tf-2-12-0
 ```
 cd /data/waymo/ && python -B lidar_data_to_pkl.py
 ```
+* This will generate **158,036** LiDAR frames for training, and **39,950** LiDAR frames for validation.
+
 ```
 roscore
 ```
