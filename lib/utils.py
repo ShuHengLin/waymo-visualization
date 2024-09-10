@@ -3,7 +3,8 @@ from lib.Point_utils import Pointcloud
 
 # ==================================================================================================================
 
-# Waymo to KITTI: /PARTNER/det3d/datasets/waymo/waymo_common.py
+# Waymo to KITTI
+# https://github.com/fudan-zvg/PARTNER/blob/main/det3d/datasets/waymo/waymo_common.py
 
 def waymo_to_kitti(obj):
 
@@ -23,7 +24,7 @@ def waymo_to_kitti(obj):
 
 # ==================================================================================================================
 
-# get_upright_3d_box_corners & get_yaw_rotation
+# Get_upright_3d_box_corners & get_yaw_rotation
 # https://github.com/waymo-research/waymo-open-dataset/blob/master/src/waymo_open_dataset/utils/box_utils.py
 # https://github.com/waymo-research/waymo-open-dataset/blob/master/src/waymo_open_dataset/utils/transform_utils.py
 
@@ -46,8 +47,8 @@ def compute_box_corners(box):
 
 # ==================================================================================================================
 
-# clearing all markers / view in RVIZ remotely
-#https://answers.ros.org/question/53595/clearing-all-markers-view-in-rviz-remotely/
+# Clearing all markers / view in RVIZ remotely
+# https://answers.ros.org/question/53595/clearing-all-markers-view-in-rviz-remotely/
 
 def new_marker_array():
 
