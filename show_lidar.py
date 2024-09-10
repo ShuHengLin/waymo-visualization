@@ -3,22 +3,21 @@ import cv2
 import numpy as np
 from tqdm import tqdm
 
-from lib.utils_pointcloud import *
-from lib.utils_bbox import *
+from lib.utils import *
 
 ##############################
 # Options
 ##############################
 
-data_path = '/data/waymo/processed_data/train/'
-#data_path = '/data/waymo/processed_data/val/'
-
 resolution = 0.1
-width = 1000
+width = 1500
 extents = np.array([[-width // 2 * resolution, width // 2 * resolution],
                     [-width // 2 * resolution, width // 2 * resolution],
                     [-2.0,   5.0]
                    ])
+
+data_path = '/data/waymo/processed_data/train/'
+data_path = '/data/waymo/processed_data/val/'
 
 ##############################
 # End of Options
@@ -59,10 +58,14 @@ for data_name in tqdm(data_names):
     x_col = np.floor((x_col - extents[0, 0]) / resolution).astype(np.int32)
     y_col = np.floor((y_col - extents[1, 0]) / resolution).astype(np.int32)
     corners = np.stack((y_col, x_col), axis=0)
-    draw_box_2d(lidar_img, corners, obj['label'])
+    if obj['combined_difficulty_level'] < 2:
+      draw_box_2d(lidar_img, corners, obj['label'], thickness=2)  # GT level 1 color: depends on obj class
+    else:
+      draw_box_2d(lidar_img, corners, cls=5, thickness=2)         # GT level 2 color: purple
+
 
   # Show result
   cv2.namedWindow ('output', 0)
   cv2.resizeWindow('output', (900, 900))
   cv2.imshow('output', lidar_img)
-  cv2.waitKey()
+  cv2.waitKey(1)

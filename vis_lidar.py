@@ -3,7 +3,7 @@ import rospy
 import numpy as np
 from tqdm import tqdm
 
-from lib.utils_pointcloud import *
+from lib.utils import *
 
 import std_msgs.msg
 import sensor_msgs.point_cloud2 as pcl2
@@ -68,8 +68,8 @@ for data_name in tqdm(data_names):
   anno_data = load_data(data_path + 'annos/' + data_name)
 
   for i, obj in enumerate(anno_data['objects']):
-    corners = compute_box_corners(obj['box'])
-    marker = box_to_marker(corners.reshape(8, 3), cls=obj['label'], index=i)
+    corners = compute_box_corners(obj['box']).reshape(8, 3)
+    marker = box_to_marker(corners, cls=obj['label'], index=i)
     marker_array.markers.append(marker)
   marker_pub.publish(marker_array)
 
