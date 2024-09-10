@@ -167,14 +167,15 @@ class Pointcloud:
         voxel_coords = discrete_pts[unique_indices]
         # Compute the minimum and maximum voxel coordinates
         if extents is not None:
-            min_voxel_coord = np.floor(extents.T[0] / voxel_size)
-            max_voxel_coord = np.ceil(extents.T[1] / voxel_size) - 1
+            min_voxel_coord = extents.T[0] / voxel_size
+            max_voxel_coord = extents.T[1] / voxel_size
         else:
             min_voxel_coord = np.amin(voxel_coords, axis=0)
             max_voxel_coord = np.amax(voxel_coords, axis=0)
 
         # Get the voxel grid dimensions
-        num_divisions = ((max_voxel_coord - min_voxel_coord) + 1).astype(np.int32)
+        num_divisions = (max_voxel_coord - min_voxel_coord).astype(np.int32)
+
         # Bring the min voxel to the origin
         voxel_indices = (voxel_coords - min_voxel_coord).astype(int)
 
